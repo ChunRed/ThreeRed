@@ -2,10 +2,11 @@
       // 创建场景
       let renderer;
       let camera;
-      let cube, md;
+      let cube;
       let ambLight;
       let spotLight;
       let scene = new THREE.Scene();
+      let Canvas, CanvasWidth, CanvasHeight;
       
       
       function init(){
@@ -16,14 +17,19 @@
         spotLight.position.set( 100, 1000, 200 );
 
         // 创建相机
-        camera = new THREE.PerspectiveCamera(75, (window.innerHeight)/(window.innerHeight), 0.1, 1000);
-        camera.position.z = 3;
+        Canvas = document.getElementById("myCanvas");
+        CanvasWidth = Canvas.parentElement.clientWidth;
+        CanvasHeight = Canvas.parentElement.clientHeight;
+        camera = new THREE.PerspectiveCamera(45, CanvasWidth/CanvasHeight, 0.1, 100);
+        camera.position.set(0, 0, 5)
+        camera.lookAt(scene.position)
         
         
 
         // 创建渲染器
-        renderer= new THREE.WebGLRenderer({canvas: document.getElementById("myCanvas"),
+        renderer= new THREE.WebGLRenderer({canvas: Canvas,
         antialias: false});
+        renderer.setSize(CanvasWidth, CanvasHeight)
         renderer.setClearColor(new THREE.Color(0xFFFFFF));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -36,12 +42,6 @@
         })
         cube = new THREE.Mesh(geometry, material);
 
-        var loader = new THREE.GLTFLoader();
-            
-        loader.load( '../model.glb', function ( gltf )
-        {
-            md = gltf.scene;
-        } );
       }    
       function animate() {
 
@@ -49,18 +49,21 @@
 
         cube.rotation.x += 0.01; 
         cube.rotation.y += 0.02;
-        md.rotation.x += 0.01; 
-        md.rotation.y += 0.02;
         render();
         
       }
       function render(){
-        //scene.add(cube);
+        scene.add(cube);
         scene.add(ambLight);
         scene.add(spotLight);
-        scene.add(md);
         renderer.render( scene, camera );
       }
+
+      window.addEventListener('resize', function() {
+        camera.aspect = CanvasWidth / CanvasHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(CanvasWidth, CanvasHeight);
+      })
        
       init();
       animate();
